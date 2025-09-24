@@ -1,0 +1,43 @@
+:root {
+  --primary: #800080;
+  --primary-dark: #5a005a;
+  --text: #333;
+  --bg: #f5f5f5;
+  --card-bg: #fff;
+  --border-radius: 10px;
+  --shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1, h2, h3 {
+  margin: 0 0 10px 0;
+}
+
+button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
