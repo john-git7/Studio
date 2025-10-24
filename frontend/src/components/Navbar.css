@@ -89,7 +89,11 @@
   font-size: 28px;
   cursor: pointer;
   user-select: none;
+  color: white;        
+  position: relative;    
+  z-index: 1010;        
 }
+
 
 .backdrop {
   position: fixed;

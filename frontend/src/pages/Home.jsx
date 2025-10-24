@@ -92,7 +92,7 @@ export default function Home({ user }) {
       {/* Package Grid */}
       {Object.entries(grouped).length === 0 ? (
         <p style={{ textAlign: "center", fontSize: "1.2rem", color: "#666" }}>
-          ❌ No packages found.
+          No packages found.
         </p>
       ) : (
         Object.entries(grouped).map(([category, items]) => (
