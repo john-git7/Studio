@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.json());
 
-// ✅ CORS configuration
+
 const allowedOrigins = [
   "http://localhost:5173",
   "https://priya-studio.vercel.app"
@@ -34,7 +34,7 @@ app.use(
 );
 
 
-app.options("*", cors());
+// app.options("/*", cors());
 
 // Root route
 app.get("/", (req, res) => {
