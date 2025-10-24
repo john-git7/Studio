@@ -98,6 +98,17 @@
   transform: rotate(90deg); /* optional rotation effect */
 }
 
+/* Invisible backdrop for click-to-close */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent; /* invisible but catches clicks */
+  z-index: 1015; /* below nav-links, above page content */
+}
+
 /* Responsive Mobile Menu */
 @media (max-width: 768px) {
   .hamburger { display: block; }
@@ -126,9 +137,4 @@
     font-size: 18px;
     color: white;
   }
-}
-
-/* Remove backdrop effect */
-.backdrop {
-  display: none;
 }
