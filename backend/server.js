@@ -11,9 +11,9 @@ const Package = require("./models/Package");
 const User = require("./models/User");
 
 // Routes
-const packageRoutes = require("./routes/packageroutes");
-const bookingRoutes = require("./routes/bookingroutes"); // create this
-const authRoutes = require("./routes/authroutes"); // create this for login/register
+const packageRoutes = require("./routes/packageRoutes");
+const bookingRoutes = require("./routes/bookingRoutes"); // create this
+const authRoutes = require("./routes/authRoutes"); // create this for login/register
 
 dotenv.config();
 const app = express();
