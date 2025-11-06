@@ -53,7 +53,7 @@ export default function PackageDetails({ user }) {
     try {
       const amountInPaise = Math.round(pkg.price * 100);
 
-      const res = await fetch(`${API_URL}/api/create-checkout-session`, {
+      const res = await fetch(`${API_URL}/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
