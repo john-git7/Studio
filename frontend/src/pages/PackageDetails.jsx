@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
-import { API_URL } from "../config";
+import { API_URL } from "../api";
 import {
   Card,
   CardHeader,
