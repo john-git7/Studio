@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import PackageDetails from "./pages/PackageDetails";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import MyBookings from "./pages/MyBookings";
 
 function App() {
@@ -30,6 +32,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<AdminDashboard user={user} />} />
         <Route path="/package/:id" element={<PackageDetails user={user} />} />
+        <Route path="/payment-success" element={<PaymentSuccess user={user} />} />
+<       Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/bookings" element={<MyBookings user={user} />} />
       </Routes>
     </Router>

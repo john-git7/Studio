@@ -8,20 +8,14 @@ export default function AdminDashboard({ user }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("latest");
 
-  // Theme colors
   const statusColors = {
-    pending: "#f6c23e",      // amber
-    confirmed: "#4e73df",    // blue
-    completed: "#1cc88a",    // green
-    canceled: "#e74a3b",     // red
+    pending: "bg-amber-400",
+    confirmed: "bg-blue-500",
+    completed: "bg-emerald-500",
+    canceled: "bg-red-500",
   };
 
-  const statusPriority = {
-    pending: 1,
-    confirmed: 2,
-    completed: 3,
-    canceled: 4,
-  };
+  const statusPriority = { pending: 1, confirmed: 2, completed: 3, canceled: 4 };
 
   useEffect(() => {
     if (!user) return;
@@ -65,7 +59,6 @@ export default function AdminDashboard({ user }) {
     }
   }
 
-  // Filtered and sorted bookings
   const filteredBookings = bookings
     .filter((b) => {
       const name = b.userId?.name || b.clientName || "Unknown";
@@ -78,45 +71,34 @@ export default function AdminDashboard({ user }) {
       const statusA = statusPriority[(a.status || "pending").toLowerCase()];
       const statusB = statusPriority[(b.status || "pending").toLowerCase()];
       if (statusA !== statusB) return statusA - statusB;
-
       const dateA = new Date(a.date || a.eventDate).getTime();
       const dateB = new Date(b.date || b.eventDate).getTime();
       return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
     });
 
-  if (!user) return <p style={{ textAlign: "center" }}>Please login as admin.</p>;
-  if (loading) return <p style={{ textAlign: "center" }}>Loading bookings...</p>;
-  if (bookings.length === 0) return <p style={{ textAlign: "center" }}>No bookings found.</p>;
+  if (!user) return <p className="text-center mt-10 text-gray-500">Please login as admin.</p>;
+  if (loading) return <p className="text-center mt-10 text-gray-500 animate-pulse">Loading bookings...</p>;
+  if (bookings.length === 0) return <p className="text-center mt-10 text-gray-500">No bookings found.</p>;
 
   return (
-    <div style={{ padding: "20px", background: "#f8f9fc", minHeight: "100vh" }}>
-      <h1 style={{ color: "#4e73df", textAlign: "center", marginBottom: "25px" }}>ADMIN DASHBOARD</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-6 md:p-12 pt-16 md:pt-20">
+      <h1 className="text-3xl md:text-4xl font-bold text-center mb-12 bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500">
+        ADMIN DASHBOARD
+      </h1>
 
       {/* Filters */}
-      <div style={{
-        margin: "15px 0",
-        display: "flex",
-        gap: "10px",
-        flexWrap: "wrap",
-      }}>
+      <div className="flex flex-wrap gap-4 justify-center mb-8">
         <input
+          type="text"
           placeholder="Search by customer"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: "6px 10px",
-            borderRadius: "8px",
-            border: "1px solid #d1d3e2",
-            flex: "1",
-            minWidth: "150px",
-            background: "#fff",
-            color: "#5a5c69",
-          }}
+          className="px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid #d1d3e2", background: "#fff", color: "#5a5c69" }}
+          className="px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -127,7 +109,7 @@ export default function AdminDashboard({ user }) {
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
-          style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid #d1d3e2", background: "#fff", color: "#5a5c69" }}
+          className="px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="latest">Latest First</option>
           <option value="oldest">Oldest First</option>
@@ -135,57 +117,72 @@ export default function AdminDashboard({ user }) {
       </div>
 
       {/* Booking Cards */}
-      <div style={{ display: "grid", gap: "15px" }}>
-        {filteredBookings.length === 0 && <p>No bookings match your filters.</p>}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredBookings.length === 0 && <p className="text-center text-gray-400">No bookings match your filters.</p>}
         {filteredBookings.map((b) => {
           const status = (b.status || "pending").toLowerCase();
           return (
-            <div key={b._id} style={{
-              background: "#fff",
-              padding: "20px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            }}>
-              <h3 style={{ color: "#4e73df", marginBottom: "10px" }}>{b.packageId?.name || b.eventName || "Unknown Package"}</h3>
-              <p><b>Customer:</b> {b.userId?.name || b.clientName || "Unknown"} ({b.userId?.email || "N/A"})</p>
-              <p><b>Date:</b> {b.date
-                ? new Date(b.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-                : b.eventDate
-                ? new Date(b.eventDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-                : "N/A"}
+            <div
+              key={b._id}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl hover:shadow-3xl transition-all duration-300"
+            >
+              <h3 className="text-xl font-semibold text-indigo-400 mb-2">{b.packageId?.name || b.eventName || "Unknown Package"}</h3>
+              <p className="text-gray-300 mb-1">
+                <span className="font-semibold">Customer:</span> {b.userId?.name || b.clientName || "Unknown"} ({b.userId?.email || "N/A"})
               </p>
-              <p>
-                <b>Status:</b>{" "}
-                <span style={{
-                  padding: "3px 10px",
-                  borderRadius: "10px",
-                  color: "#fff",
-                  background: statusColors[status] || "#858796",
-                  fontWeight: "500",
-                  fontSize: "0.9rem",
-                }}>
+              <p className="text-gray-300 mb-1">
+                <span className="font-semibold">Date:</span>{" "}
+                {b.date
+                  ? new Date(b.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                  : b.eventDate
+                  ? new Date(b.eventDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                  : "N/A"}
+              </p>
+              <p className="mb-2">
+                <span className="font-semibold">Status:</span>{" "}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[status] || "bg-gray-500"}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </p>
 
               {/* Action Buttons */}
-              <div style={{ marginTop: "12px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <div className="flex flex-wrap gap-2 mt-3">
                 {status === "pending" && (
                   <>
-                    <button onClick={() => updateStatus(b._id, "confirmed")}
-                      style={buttonStyle("#4e73df")}>Confirm</button>
-                    <button onClick={() => updateStatus(b._id, "completed")}
-                      style={buttonStyle("#1cc88a")}>Complete</button>
-                    <button onClick={() => cancelBooking(b._id)}
-                      style={buttonStyle("#e74a3b")}>Cancel</button>
+                    <button
+                      onClick={() => updateStatus(b._id, "confirmed")}
+                      className="px-3 py-1 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => updateStatus(b._id, "completed")}
+                      className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium transition-colors"
+                    >
+                      Complete
+                    </button>
+                    <button
+                      onClick={() => cancelBooking(b._id)}
+                      className="px-3 py-1 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </>
                 )}
                 {status === "confirmed" && (
                   <>
-                    <button onClick={() => updateStatus(b._id, "completed")}
-                      style={buttonStyle("#1cc88a")}>Complete</button>
-                    <button onClick={() => cancelBooking(b._id)}
-                      style={buttonStyle("#e74a3b")}>Cancel</button>
+                    <button
+                      onClick={() => updateStatus(b._id, "completed")}
+                      className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium transition-colors"
+                    >
+                      Complete
+                    </button>
+                    <button
+                      onClick={() => cancelBooking(b._id)}
+                      className="px-3 py-1 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </>
                 )}
               </div>
@@ -196,18 +193,3 @@ export default function AdminDashboard({ user }) {
     </div>
   );
 }
-
-// Button style
-const buttonStyle = (bg) => ({
-  flex: "0 1 auto",
-  minWidth: "90px",
-  padding: "6px 12px",
-  borderRadius: "6px",
-  border: "none",
-  background: bg,
-  color: "#fff",
-  cursor: "pointer",
-  fontSize: "0.9rem",
-  fontWeight: "500",
-  transition: "background 0.2s",
-});

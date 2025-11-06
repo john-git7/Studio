@@ -2,48 +2,74 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const Package = require("../models/Package");
 
-// User books a package
+/* =========================================================
+   📦 CREATE BOOKING (User books a package)
+   ========================================================= */
 exports.createBooking = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    const packageData = await Package.findById(req.body.packageId);
+    const { packageId, date } = req.body;
 
+    // Check if booking already exists for this user & package
+    const existing = await Booking.findOne({
+      userId: req.user.id,
+      packageId,
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        msg: "Booking already exists",
+        booking: existing,
+      });
+    }
+
+    // Create a new booking
     const booking = new Booking({
       userId: req.user.id,
-      packageId: req.body.packageId,
-      date: req.body.date,
+      packageId,
+      date: date || new Date(),
+      status: "Pending",
     });
+
     await booking.save();
     res.json(booking);
   } catch (err) {
+    console.error("❌ Booking creation failed:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get logged-in user's bookings
+/* =========================================================
+   📋 GET MY BOOKINGS (Logged-in user's bookings)
+   ========================================================= */
 exports.getMyBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.user.id }).populate("packageId");
+    const bookings = await Booking.find({ userId: req.user.id })
+      .populate("packageId"); // Include package details
+
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Admin: Get all bookings
+/* =========================================================
+   👑 ADMIN: GET ALL BOOKINGS
+   ========================================================= */
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
-      .populate("userId", "name email")   // populate only name & email
-      .populate("packageId", "name");     // populate only package name
+      .populate("userId", "name email") // Only include user's name & email
+      .populate("packageId", "name"); // Only include package name
+
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
-// Admin: Update booking status
+/* =========================================================
+   ✏️ ADMIN: UPDATE BOOKING STATUS
+   ========================================================= */
 exports.updateBooking = async (req, res) => {
   try {
     const updated = await Booking.findByIdAndUpdate(
@@ -51,20 +77,25 @@ exports.updateBooking = async (req, res) => {
       { status: req.body.status },
       { new: true }
     );
+
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// User: Cancel own booking
-// Cancel booking (user or admin)
+/* =========================================================
+   ❌ CANCEL BOOKING (User or Admin)
+   ========================================================= */
 exports.cancelBooking = async (req, res) => {
   try {
     let booking;
+
     if (req.user.role === "admin") {
+      // Admin can cancel any booking
       booking = await Booking.findByIdAndDelete(req.params.id);
     } else {
+      // User can only cancel their own booking
       booking = await Booking.findOneAndDelete({
         _id: req.params.id,
         userId: req.user.id,
@@ -72,7 +103,9 @@ exports.cancelBooking = async (req, res) => {
     }
 
     if (!booking) {
-      return res.status(404).json({ error: "Booking not found or not authorized" });
+      return res
+        .status(404)
+        .json({ error: "Booking not found or not authorized" });
     }
 
     res.json({ msg: "Booking cancelled successfully" });
@@ -80,7 +113,3 @@ exports.cancelBooking = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
-
-

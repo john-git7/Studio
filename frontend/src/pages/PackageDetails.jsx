@@ -1,6 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 export default function PackageDetails({ user }) {
   const { id } = useParams();
@@ -8,220 +26,160 @@ export default function PackageDetails({ user }) {
   const [pkg, setPkg] = useState(null);
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showDialog, setShowDialog] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    apiRequest(`/packages/${id}`).then(setPkg);
+    async function fetchPackage() {
+      try {
+        console.log("Fetching package with ID:", id);
+        const data = await apiRequest(`/packages/${id}`);
+        setPkg(data);
+      } catch (err) {
+        console.error("Failed to fetch package:", err.message);
+        setError(err.message);
+      }
+    }
+
+    if (id) fetchPackage();
   }, [id]);
 
   async function handleBooking() {
-    if (!user) {
-      alert("Please login first");
-      return;
-    }
-    if (!date) return;
+    if (!user) return toast.error("Please login first");
+    if (!date) return toast.warning("Please select a date");
+    if (pkg.price < 50) return toast.error("Package price must be at least ₹50");
 
     setLoading(true);
-    const res = await apiRequest(
-      "/bookings",
-      "POST",
-      { packageId: id, date },
-      user.token
-    );
-    setLoading(false);
+    try {
+      const amountInPaise = Math.round(pkg.price * 100);
 
-    if (res.error) alert(res.error);
-    else {
-      alert("Booking confirmed!");
-      setShowDialog(false);
+      const res = await fetch("http://localhost:5000/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId: pkg._id,
+          packageName: pkg.name,
+          amount: amountInPaise,
+          date,
+          userId: user.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error || "Failed to initialize payment");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Payment connection error");
+    } finally {
+      setLoading(false);
     }
   }
 
+  if (error)
+    return (
+      <p className="text-center mt-10 text-red-500 text-lg">
+        ⚠️ Error loading package: {error}
+      </p>
+    );
+
   if (!pkg)
     return (
-      <p style={{ textAlign: "center", marginTop: "40px" }}>
+      <p className="text-center mt-10 text-gray-500 text-lg animate-pulse">
         Loading package...
       </p>
     );
 
-  // Theme colors by role
-  const isAdmin = user?.role === "admin";
-  const themeColors = isAdmin
-    ? {
-        primary: "#4e73df",
-        primaryHover: "#3751c6",
-        border: "#c7d4f5",
-      }
-    : {
-        primary: "#20c997",
-        primaryHover: "#1aa179",
-        border: "#c1eae1",
-      };
-
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>{pkg.name}</h2>
-        <p style={styles.price}>
-          <strong>Price:</strong> ₹{pkg.price}
-        </p>
-        <p style={styles.description}>
-          This is one of Priya Studio’s professional photography packages.
-          Perfect for capturing your memories with quality service.
-        </p>
+    <div className="relative min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-xl p-6 z-10"
+      >
+        <Card className="bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl text-gray-100">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold tracking-tight text-emerald-300 drop-shadow-md">
+              {pkg.name}
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              ₹{pkg.price} — Premium photography package by{" "}
+              <span className="font-semibold text-white">Priya Studio</span>.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-gray-200 leading-relaxed">
+              Capture your memories in style with our professional-grade
+              photography services. Every shot tells your story beautifully.
+            </p>
 
-        <div style={styles.buttonRow}>
-          {user?.role === "user" && (
-            <button
-              style={{
-                ...styles.primaryButton,
-                backgroundColor: themeColors.primary,
-              }}
-              onMouseEnter={(e) =>
-                (e.target.style.backgroundColor = themeColors.primaryHover)
-              }
-              onMouseLeave={(e) =>
-                (e.target.style.backgroundColor = themeColors.primary)
-              }
-              onClick={() => setShowDialog(true)}
-            >
-              Book This Package
-            </button>
-          )}
-          <button
-            style={styles.secondaryButton}
-            onClick={() => navigate(-1)}
-          >
-            Back to Home
-          </button>
-        </div>
-      </div>
+            <div className="flex flex-wrap gap-4">
+              {user?.role === "user" && (
+                <Button
+                  size="lg"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white text-lg font-semibold py-3 transition-transform hover:scale-[1.02]"
+                  onClick={() => setOpen(true)}
+                  disabled={loading}
+                >
+                  Book This Package
+                </Button>
+              )}
 
-      {showDialog && (
-        <div style={styles.overlay}>
-          <div style={styles.dialog}>
-            <h3 style={{ marginBottom: "16px" }}>Book Package</h3>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              style={{
-                ...styles.input,
-                border: `1px solid ${themeColors.border}`,
-              }}
-            />
-            <div style={styles.dialogActions}>
-              <button
-                onClick={handleBooking}
-                disabled={loading}
-                style={{
-                  ...styles.primaryButton,
-                  backgroundColor: themeColors.primary,
-                  flex: 1,
-                  opacity: loading ? 0.7 : 1,
-                  cursor: loading ? "not-allowed" : "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = themeColors.primaryHover)
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = themeColors.primary)
-                }
+              <Button
+                size="lg"
+                className="flex-1 bg-cyan-600 hover:bg-teal-500 text-white text-lg font-semibold py-3 transition-transform hover:scale-[1.02]"
+                onClick={() => navigate(-1)}
               >
-                {loading ? "Booking..." : "Confirm"}
-              </button>
-              <button
-                onClick={() => setShowDialog(false)}
-                style={{ ...styles.secondaryButton, flex: 1 }}
-              >
-                Cancel
-              </button>
+                Back to Home
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-xl"
+          aria-describedby="booking-description"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-emerald-300">
+              Book Package
+            </DialogTitle>
+            <p id="booking-description" className="text-gray-300 mt-1">
+              Select a date and proceed to payment for your booking.
+            </p>
+          </DialogHeader>
+
+          <Input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="bg-white/5 border border-white/20 text-white placeholder:text-gray-400 mt-4"
+          />
+
+          <DialogFooter className="flex gap-3 mt-4">
+            <Button
+              onClick={handleBooking}
+              disabled={loading}
+              className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white text-lg font-semibold py-3 transition-all hover:scale-[1.02]"
+            >
+              {loading ? "Redirecting..." : "Proceed to Pay"}
+            </Button>
+
+            <Button
+              onClick={() => setOpen(false)}
+              className="flex-1 bg-cyan-600 hover:bg-teal-500 text-white text-lg font-semibold py-3 transition-transform hover:scale-[1.02]"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "700px",
-    margin: "40px auto",
-    padding: "20px",
-  },
-  card: {
-    background: "#fff",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    padding: "24px",
-  },
-  title: {
-    fontSize: "1.8rem",
-    fontWeight: "bold",
-    marginBottom: "20px",
-    color: "#333",
-  },
-  price: {
-    fontSize: "1.2rem",
-    marginBottom: "16px",
-  },
-  description: {
-    fontSize: "1rem",
-    color: "#555",
-    marginBottom: "30px",
-  },
-  buttonRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "12px",
-  },
-  primaryButton: {
-    color: "white",
-    padding: "12px 20px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "1rem",
-    flex: "1 1 200px",
-    transition: "background 0.2s",
-  },
-  secondaryButton: {
-    backgroundColor: "#eee",
-    color: "#333",
-    padding: "12px 20px",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "1rem",
-    flex: "1 1 200px",
-  },
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  },
-  dialog: {
-    background: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    width: "400px",
-    maxWidth: "90%",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "6px",
-    marginBottom: "16px",
-    fontSize: "1rem",
-  },
-  dialogActions: {
-    display: "flex",
-    gap: "10px",
-  },
-};
