@@ -142,44 +142,46 @@ export default function PackageDetails({ user }) {
       </motion.div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
-          className="bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-xl"
-          aria-describedby="booking-description"
-        >
-          <DialogHeader>
-            <DialogTitle className="text-2xl text-emerald-300">
-              Book Package
-            </DialogTitle>
-            <p id="booking-description" className="text-gray-300 mt-1">
-              Select a date and proceed to payment for your booking.
-            </p>
-          </DialogHeader>
+  <DialogContent
+    className="bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-xl"
+    aria-describedby="booking-description"
+  >
+    <DialogHeader>
+      <DialogTitle className="text-2xl text-emerald-300">
+        Book Package
+      </DialogTitle>
+    </DialogHeader>
 
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="bg-white/5 border border-white/20 text-white placeholder:text-gray-400 mt-4"
-          />
+    <p id="booking-description" className="text-gray-300 mt-1">
+      Select a date and proceed to payment for your booking.
+    </p>
 
-          <DialogFooter className="flex gap-3 mt-4">
-            <Button
-              onClick={handleBooking}
-              disabled={loading}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white text-lg font-semibold py-3 transition-all hover:scale-[1.02]"
-            >
-              {loading ? "Redirecting..." : "Proceed to Pay"}
-            </Button>
+    <Input
+      type="date"
+      value={date}
+      onChange={(e) => setDate(e.target.value)}
+      className="bg-white/5 border border-white/20 text-white placeholder:text-gray-400 mt-4"
+    />
 
-            <Button
-              onClick={() => setOpen(false)}
-              className="flex-1 bg-cyan-600 hover:bg-teal-500 text-white text-lg font-semibold py-3 transition-transform hover:scale-[1.02]"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+    <DialogFooter className="flex gap-3 mt-4">
+      <Button
+        onClick={handleBooking}
+        disabled={loading}
+        className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white text-lg font-semibold py-3 transition-all hover:scale-[1.02]"
+      >
+        {loading ? "Redirecting..." : "Proceed to Pay"}
+      </Button>
+
+      <Button
+        onClick={() => setOpen(false)}
+        className="flex-1 bg-cyan-600 hover:bg-teal-500 text-white text-lg font-semibold py-3 transition-transform hover:scale-[1.02]"
+      >
+        Cancel
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
     </div>
   );
 }
