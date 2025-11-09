@@ -122,6 +122,10 @@ app.post("/api/verify-payment", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+//create a get request for checking backend status
+app.get("/api/status", (req, res) => {
+  res.json({ status: "Backend is running" });
+});
 
 // Connect MongoDB
 mongoose
