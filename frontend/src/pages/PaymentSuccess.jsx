@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { API_URL } from "../api";
+
 
 export default function PaymentSuccess() {
   const [params] = useSearchParams();
@@ -21,14 +23,15 @@ export default function PaymentSuccess() {
 
     const verifyPayment = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/verify-payment", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify({ session_id, userId: user.id }),
-        });
+       const res = await fetch(`${API_URL}/verify-payment`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`
+        },
+        body: JSON.stringify({ session_id, userId: user.id }),
+      });
+
 
         const data = await res.json();
 
