@@ -9,6 +9,7 @@ import PackageDetails from "./pages/PackageDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import MyBookings from "./pages/MyBookings";
+import ContactSection from "./pages/ContactSection";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -35,6 +36,7 @@ function App() {
         <Route path="/payment-success" element={<PaymentSuccess user={user} />} />
 <       Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/bookings" element={<MyBookings user={user} />} />
+        <Route path="/contact" element={<ContactSection />} />
       </Routes>
     </Router>
   );
